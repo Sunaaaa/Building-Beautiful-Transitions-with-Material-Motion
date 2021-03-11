@@ -8,6 +8,8 @@ import 'model/email_model.dart';
 import 'model/email_store.dart';
 import 'profile_avatar.dart';
 
+import 'package:animations/animations.dart';
+
 class MailPreviewCard extends StatelessWidget {
   const MailPreviewCard({
     Key key,
@@ -47,25 +49,10 @@ class MailPreviewCard extends StatelessWidget {
         'Starred';
 
     // TODO: Add Container Transform transition from email list to email detail page (Motion)
-    return Material(
-      color: theme.cardColor,
-      child: InkWell(
-        onTap: () {
-          Provider.of<EmailStore>(
-            context,
-            listen: false,
-          ).currentlySelectedEmailId = id;
-
-          mobileMailNavKey.currentState.push(
-            PageRouteBuilder(
-              pageBuilder: (BuildContext context, Animation<double> animation,
-                  Animation<double> secondaryAnimation) {
-                return MailViewPage(id: id, email: email);
-              },
-            ),
-          );
-        },
-        child: Dismissible(
+    return _OpenContainerWrapper(
+        id: id,
+        email: email,
+        closedChild: Dismissible(
           key: ObjectKey(email),
           dismissThresholds: const {
             DismissDirection.startToEnd: 0.8,
@@ -115,12 +102,43 @@ class MailPreviewCard extends StatelessWidget {
           ),
           child: mailPreview,
         ),
-      ),
     );
   }
 }
 
 // TODO: Add Container Transform transition from email list to email detail page (Motion)
+// _OpenContainerWrapper
+class _OpenContainerWrapper extends StatelessWidget {
+  const _OpenContainerWrapper({
+    @required this.id,
+    @required this.email,
+    @required this.closedChild,
+  }) :  assert(id != null), assert (email != null), assert (closedChild != null);
+
+  final int id;
+  final Email email;
+  final Widget closedChild;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return OpenContainer(
+        closedBuilder: (context, openContainer) {
+          return InkWell(
+            onTap: () {
+              Provider.of<EmailStore>(context, listen: false,).currentlySelectedEmailId = id;
+              openContainer();
+            },
+            child: closedChild,
+          );
+        },
+        closedElevation: 0,
+        closedShape: const RoundedRectangleBorder( borderRadius: BorderRadius.all(Radius.circular(0)),),
+        openBuilder: (context, closedContainer) { return MailViewPage(id: id, email: email);},
+        openColor: theme.cardColor,
+    );
+  }
+}
 
 class _DismissibleContainer extends StatelessWidget {
   const _DismissibleContainer({
