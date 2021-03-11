@@ -733,8 +733,8 @@ class _ReplyFabState extends State<_ReplyFab>
         final fabSwitcher = onMailView
             ? Icon(
                 Icons.reply_all,
-                color: Colors.black,
-                // color: Colors.lightGreen,
+                // color: Colors.black,
+                color: Colors.lightGreen,
               )
             : const Icon(
                 Icons.create,
